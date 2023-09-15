@@ -1,0 +1,8 @@
+*
+!.gitignore
+!app
+!*.hs
+!*.cabal
+!*.bat
+!*.sh
+!*.md
