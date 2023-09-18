@@ -33,5 +33,13 @@ feedForward :: [Float] -> NN -> [Float]
 feedForward fs [l] = feedForwardL fs l
 feedForward fs (l:ls) = feedForward (feedForwardL fs l) ls
 
+backProp :: ([Float], [Float]) -> Float -> NN -> NN
+backProp (xs, ts) lr nn = reverse $ backProp' (reverse $ feedForward' xs nn) (let (o:_) = reverse $ feedForward' xs nn in zipWith (-) o ts) nn
+                        where feedForward' :: [Float] -> NN -> [[Float]]
+                              feedForward' fs [l] = [feedForwardL fs l]
+                              feedForward' fs (l:ls) = let os = feedForwardL fs l in os:feedForward' os ls
+                              backProp' :: [[Float]] -> [Float] -> NN -> NN
+                              backProp' = undefined
+
 main :: IO ()
 main = print $ createNN (mkStdGen 4) [1, 2, 3]
