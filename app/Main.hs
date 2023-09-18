@@ -26,9 +26,12 @@ createNN = createNN' 1
                                   (b, g'') = random g'
                               in ((ws, b), g'')
 
+feedForwardL :: [Float] -> Layer -> [Float]
+feedForwardL fs l = foldr (\(ws, b) a -> (b + (sum $ zipWith (*) fs ws)) : a) [] l
+
 feedForward :: [Float] -> NN -> [Float]
-feedForward fs [l] = foldr (\(ws, b) a -> (b + (sum $ zipWith (*) fs ws)) : a) [] l
-feedForward fs (l:ls) = feedForward (feedForward fs [l]) ls
+feedForward fs [l] = feedForwardL fs l
+feedForward fs (l:ls) = feedForward (feedForwardL fs l) ls
 
 main :: IO ()
 main = print $ createNN (mkStdGen 4) [1, 2, 3]
