@@ -13,6 +13,7 @@ validateNN _ = True
 
 sigmoid :: Float -> Float
 sigmoid x = 1/(1+exp(-x))
+
 randomSeq :: Random a => StdGen -> Int -> ([a], StdGen)
 randomSeq g 0 = ([], g)
 randomSeq g n = let (r, g') = random g in (\(a, b) -> (r:a, b)) $ randomSeq g' (n-1)
@@ -36,12 +37,13 @@ feedForward fs [l] = feedForwardL fs l
 feedForward fs (l:ls) = feedForward (feedForwardL fs l) ls
 
 backProp :: ([Float], [Float]) -> Float -> NN -> NN
-backProp (xs, ts) lr nn = reverse $ backProp' (reverse $ feedForward' xs nn) (let (o:_) = reverse $ feedForward' xs nn in zipWith (-) o ts) nn
+backProp (xs, ts) lr nn = reverse $ backProp' (tail $ reverse $ feedForward' xs nn ++ [xs]) (let (o:_) = reverse $ feedForward' xs nn in zipWith (\a t -> (a-t)*a*(1-a)) o ts) (reverse nn)
                         where feedForward' :: [Float] -> NN -> [[Float]]
                               feedForward' fs [l] = [feedForwardL fs l]
                               feedForward' fs (l:ls) = let os = feedForwardL fs l in os:feedForward' os ls
                               backProp' :: [[Float]] -> [Float] -> NN -> NN
-                              backProp' = undefined
+                              backProp' (oi:ros) dels (j:i:ls) = map (\((ws, b), d) -> (map (\(w, a) -> w - lr*d*a) $ zip ws oi, b - lr*d)) (zip j dels) : backProp' ros (foldr (\((ws, _), dl) acc -> zipWith (+) acc (zipWith (\w a -> w*dl*a*(1-a)) ws oi)) (replicate (length i) 0) (zip j dels)) (i:ls)
+                              backProp' [oi] dels [j] = [map (\((ws, b), d) -> (map (\(w, a) -> w - lr*d*a) $ zip ws oi, b - lr*d)) (zip j dels)]
 
 main :: IO ()
 main = print $ createNN (mkStdGen 4) [1, 2, 3]
