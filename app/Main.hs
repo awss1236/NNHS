@@ -11,6 +11,8 @@ validateNN (l1:l2:ls) = let n = map (length.fst) l2 in if allSame n then length 
                             allSame _ = True
 validateNN _ = True
 
+sigmoid :: Float -> Float
+sigmoid x = 1/(1+exp(-x))
 randomSeq :: Random a => StdGen -> Int -> ([a], StdGen)
 randomSeq g 0 = ([], g)
 randomSeq g n = let (r, g') = random g in (\(a, b) -> (r:a, b)) $ randomSeq g' (n-1)
@@ -27,7 +29,7 @@ createNN = createNN' 1
                               in ((ws, b), g'')
 
 feedForwardL :: [Float] -> Layer -> [Float]
-feedForwardL fs l = foldr (\(ws, b) a -> (b + (sum $ zipWith (*) fs ws)) : a) [] l
+feedForwardL fs l = foldr (\(ws, b) a -> sigmoid (b + (sum $ zipWith (*) fs ws)) : a) [] l
 
 feedForward :: [Float] -> NN -> [Float]
 feedForward fs [l] = feedForwardL fs l
