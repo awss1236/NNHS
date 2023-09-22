@@ -27,7 +27,7 @@ createNN = createNN' 1
                randNode :: StdGen -> Int -> (Node, StdGen)
                randNode g p = let (ws, g') = randomSeq g p
                                   (b, g'') = random g'
-                              in ((ws, b), g'')
+                              in ((ws, 2*b-1), g'')
 
 feedForwardL :: [Float] -> Layer -> [Float]
 feedForwardL fs l = foldr (\(ws, b) a -> sigmoid (b + (sum $ zipWith (*) fs ws)) : a) [] l
