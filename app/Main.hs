@@ -45,5 +45,10 @@ backProp (xs, ts) lr nn = reverse $ backProp' ((tail $ reverse $ feedForward' xs
                               backProp' (oi:ros) dels (j:i:ls) = map (\((ws, b), d) -> (map (\(w, a) -> w - lr*d*a) $ zip ws oi, b - lr*d)) (zip j dels) : backProp' ros (foldr (\((ws, _), dl) acc -> zipWith (+) acc (zipWith (\w a -> w*dl*a*(1-a)) ws oi)) (replicate (length i) 0) (zip j dels)) (i:ls)
                               backProp' [oi] dels [j] = [map (\((ws, b), d) -> (map (\(w, a) -> w - lr*d*a) $ zip ws oi, b - lr*d)) (zip j dels)]
 
+train :: [([Float], [Float])] -> Int -> Float -> NN -> NN
+train tr iters lr nn = let lr' = lr / (fromIntegral $ length tr) in nTimes iters (foldr (\d f -> f . (backProp d lr')) id tr) nn
+                       where nTimes 1 f a = f a
+                             nTimes n f a = nTimes (n-1) f (f a)
+
 main :: IO ()
 main = print $ createNN (mkStdGen 4) [1, 2, 3]
