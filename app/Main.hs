@@ -37,7 +37,7 @@ feedForward fs [l] = feedForwardL fs l
 feedForward fs (l:ls) = feedForward (feedForwardL fs l) ls
 
 backProp :: ([Float], [Float]) -> Float -> NN -> NN
-backProp (xs, ts) lr nn = reverse $ backProp' (tail $ reverse $ feedForward' xs nn ++ [xs]) (let (o:_) = reverse $ feedForward' xs nn in zipWith (\a t -> (a-t)*a*(1-a)) o ts) (reverse nn)
+backProp (xs, ts) lr nn = reverse $ backProp' ((tail $ reverse $ feedForward' xs nn) ++ [xs]) (let (o:_) = reverse $ feedForward' xs nn in zipWith (\a t -> (a-t)*a*(1-a)) o ts) (reverse nn)
                         where feedForward' :: [Float] -> NN -> [[Float]]
                               feedForward' fs [l] = [feedForwardL fs l]
                               feedForward' fs (l:ls) = let os = feedForwardL fs l in os:feedForward' os ls
